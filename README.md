@@ -4,6 +4,7 @@
 
 Les images docker des micro services sont heberger aux addresses suivante :
 - https://github.com/AMT-TEAM01/DataObjectAWS/pkgs/container/data-object-aws
+- https://github.com/AMT-TEAM01/LabelDetectorAWS/pkgs/container/label-detector-aws
 
 ## Marche a suivre
 
