@@ -5,6 +5,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -14,10 +15,13 @@ public class Main {
     static String rekognitionService = "http://localhost:8081"; // TODO
     static String testImage = "https://upload.wikimedia.org/wikipedia/commons/3/39/Typical_Street_In_The_Royal_Borough_Of_Kensington_And_Chelsea_In_London.jpg";
     static String image = "street.jpg";
+    static String result = "result.txt";
 
     public static void main(String[] args) {
         System.out.println("Hello world!");
         try {
+            delRequest(bucketService + "/object?remote=" + image);
+            delRequest(bucketService + "/object?remote=" + result);
             firstScenario();
             secondScenario();
             thirdScenario();
@@ -28,14 +32,41 @@ public class Main {
 
     public static void firstScenario(){
         try {
-            Map<String, String> args = new HashMap<>();
-            args.put("data", "02");
-            args.put("remote", image);
-            postRequest(bucketService + "/object", args);
-            System.out.println(getRequest(rekognitionService, "/analyze?image=" + testImage));
+            uploadImage();
+            String imageURL = getImageUrl();
+            String json = analyzeImage(imageURL);
+            uploadResult(json);
         } catch (Exception e){
             System.out.println(e.getMessage());
         }
+    }
+
+    public static void uploadImage() throws IOException {
+        byte[] bytes = Main.class.getResourceAsStream("/" + image).readAllBytes();
+        String base64 = Base64.getEncoder().encodeToString(bytes);
+        Map<String, String> args = new HashMap<>();
+        args.put("data", base64);
+        args.put("remote", image);
+        postRequest(bucketService + "/object", args);
+    }
+
+    public static String getImageUrl() throws IOException {
+        String resp = getRequest(bucketService +  "/object-url?remote=" + image);
+        System.out.println(resp);
+        return resp;
+    }
+
+    public static String analyzeImage(String url) throws IOException {
+        String resp = getRequest(rekognitionService + "/analyze?image=" + url);
+        System.out.println(resp);
+        return resp;
+    }
+
+    public static void uploadResult(String json) throws IOException {
+        Map<String, String> args = new HashMap<>();
+        args.put("data", json);
+        args.put("remote", result);
+        postRequest(bucketService + "/object", args);
     }
 
     public static void secondScenario() {
@@ -47,6 +78,7 @@ public class Main {
     }
 
     public static void postRequest(String url, Map<String, String> args) throws IOException {
+        System.out.println(url);
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
         con.setRequestMethod("POST");
@@ -75,15 +107,42 @@ public class Main {
 
             System.out.println(response.toString());
         } else {
-            System.out.println("GET request did not work, with response code : " + responseCode);
+            System.out.println("POST request did not work, with response code : " + responseCode);
         }
     }
 
-    public static String getRequest(String url, String arguments) throws IOException {
+    public static String getRequest(String url) throws IOException {
+        System.out.println(url);
         String resp;
-        URL obj = new URL(url + arguments);
+        URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
         con.setRequestMethod("GET");
+        int responseCode = con.getResponseCode();
+
+        if (responseCode == HttpURLConnection.HTTP_OK) {
+            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+            String inputLine;
+            StringBuilder response = new StringBuilder();
+
+            while ((inputLine = in.readLine()) != null) {
+                response.append(inputLine);
+            }
+            in.close();
+
+            resp = response.toString();
+        } else {
+            resp = "GET request did not work, with response code : " + responseCode;
+        }
+
+        return resp;
+    }
+
+    public static String delRequest(String url) throws IOException {
+        System.out.println(url);
+        String resp;
+        URL obj = new URL(url);
+        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
+        con.setRequestMethod("DELETE");
         int responseCode = con.getResponseCode();
 
         if (responseCode == HttpURLConnection.HTTP_OK) {
