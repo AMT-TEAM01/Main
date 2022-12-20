@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 public class Main {
     static String bucketService = "http://localhost:8080"; // TODO
     static String rekognitionService = "http://localhost:8081"; // TODO
-    static String testImage = "https://upload.wikimedia.org/wikipedia/commons/3/39/Typical_Street_In_The_Royal_Borough_Of_Kensington_And_Chelsea_In_London.jpg";
     static String image = "street.jpg";
     static String result = "result.txt";
 
@@ -23,8 +22,6 @@ public class Main {
             delRequest(bucketService + "/object?remote=" + image);
             delRequest(bucketService + "/object?remote=" + result);
             firstScenario();
-            secondScenario();
-            thirdScenario();
         } catch (Exception e){
             System.out.println(e.getMessage());
         }
@@ -43,7 +40,7 @@ public class Main {
 
     public static void uploadImage() throws IOException {
         byte[] bytes = Main.class.getResourceAsStream("/" + image).readAllBytes();
-        String base64 = Base64.getEncoder().encodeToString(bytes);
+        String base64 = Base64.getUrlEncoder().encodeToString(bytes);
         Map<String, String> args = new HashMap<>();
         args.put("data", base64);
         args.put("remote", image);
@@ -57,24 +54,16 @@ public class Main {
     }
 
     public static String analyzeImage(String url) throws IOException {
-        String resp = getRequest(rekognitionService + "/analyze?image=" + url);
+        String resp = getRequest(rekognitionService + "/analyze?image=" + Base64.getUrlEncoder().encodeToString(url.getBytes()));
         System.out.println(resp);
         return resp;
     }
 
     public static void uploadResult(String json) throws IOException {
         Map<String, String> args = new HashMap<>();
-        args.put("data", json);
+        args.put("data", Base64.getUrlEncoder().encodeToString(json.getBytes()));
         args.put("remote", result);
         postRequest(bucketService + "/object", args);
-    }
-
-    public static void secondScenario() {
-
-    }
-
-    public static void thirdScenario() {
-
     }
 
     public static void postRequest(String url, Map<String, String> args) throws IOException {
