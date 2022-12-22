@@ -2,6 +2,10 @@
 
 Collaborators : Chiffelle Janis, Tomic Mario
 
+# CI/CD
+
+The 2 micro-services use CI/CD for symplifing the developpmeent process. On push on the dev branch, a docker image will be created and put on the docker registery of github. With this, we have all the differents version of the images in a centralized place. We don't have a CI/CD on the main yet, we will have one when will push on the aws EC2.
+
 # Run the micros-services
 
 The dockers images are hosted at the following addresses :
