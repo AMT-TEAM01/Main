@@ -16,9 +16,15 @@ The dockers images are hosted at the following addresses :
 
 You first need to authenticate at the container registery with the following [link](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry) under the section section "Authenticating to the Container registry". 
 
-After you have done step 1,2,3 of the link. You can pull the image with the command <code>docker pull ghcr.io/amt-team01/data-object-aws:latest</code>, that will download the image for the communication with s3 on our machine.
+After you have done step 1,2,3 of the link. You can pull the images with the following commands :
+- <code>docker pull ghcr.io/amt-team01/data-object-aws:latest</code> for the data object, that will download the image for the communication with s3 on our machine.
+- <code>docker pull ghcr.io/amt-team01/label-detector-aws:latest</code> for the label detector service using Amazon Rekognition. 
 
-We can then launch our docker with the following command <code>docker run --name=doc -p 8080:8080 -e AWS_ACCESS_KEY_ID=XXXXXXXXXXXX -e AWS_SECRET_ACCESS_KEY=XXXXXXXXXXXX -e AWS_DEFAULT_REGION=XXXXXXXXX ghcr.io/amt-team01/data-object-aws</code> by replacing the XXXX with the correct inputs.
+We can then launch our docker with the following commands:
+- Data Object : <code>docker run --name=doaws -p 8080:8080 -e AWS_ACCESS_KEY_ID=XXXXXXXXXXXX -e AWS_SECRET_ACCESS_KEY=XXXXXXXXXXXX -e AWS_DEFAULT_REGION=XXXXXXXXX ghcr.io/amt-team01/data-object-aws</code> 
+- Label detector : <code>docker run --name=ldaws -p 8081:8080 -e AWS_ACCESS_KEY_ID=XXXXXXXXXXXX -e AWS_SECRET_ACCESS_KEY=XXXXXXXXXXXX -e AWS_DEFAULT_REGION=XXXXXXXXXXXX ghcr.io/amt-team01/label-detector-aws</code>
+
+Note: replace the XXXX with the correct inputs.
 
 Finally we can communicate with the docker with for example the following curl command <code>curl -X POST -d data=02 -d remote=test.txt localhost:8080/object</code>
 
