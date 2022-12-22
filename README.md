@@ -38,5 +38,17 @@ Execute the following command, where the pom.xml is located
 
 Maven will then proceed to download all the dependencies listed in the pom.xml file. 
 
-# Run the main
+## Compiling and running
 
+To compile the project and generate an executable file, run `mvn package` 
+
+To run the project:
+
+### Windows
+
+Execute the `run_win.bat` script, at the root of the project (where pom.xml is located)
+
+### Linux
+
+1. Give execution right to the script with `chmod +x run_linux.sh`, at the root of the project (where pom.xml is located)
+2. Execute the script with `./run_linux` 
