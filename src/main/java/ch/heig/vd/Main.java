@@ -17,22 +17,15 @@ public class Main {
     static String result = "result.txt";
 
     public static void main(String[] args) {
-        System.out.println("Hello world!");
         try {
             delRequest(bucketService + "/object?remote=" + image);
             delRequest(bucketService + "/object?remote=" + result);
-            firstScenario();
-        } catch (Exception e){
-            System.out.println(e.getMessage());
-        }
-    }
-
-    public static void firstScenario(){
-        try {
             uploadImage();
             String imageURL = getImageUrl();
             String json = analyzeImage(imageURL);
+            System.out.println("Analysis result : " + json);
             uploadResult(json);
+            System.out.println("It works");
         } catch (Exception e){
             System.out.println(e.getMessage());
         }
@@ -44,18 +37,24 @@ public class Main {
         Map<String, String> args = new HashMap<>();
         args.put("data", base64);
         args.put("remote", image);
-        postRequest(bucketService + "/object", args);
+        if (!postRequest(bucketService + "/object", args)) {
+            System.out.println("Couldn't upload the image");
+        }
     }
 
     public static String getImageUrl() throws IOException {
         String resp = getRequest(bucketService +  "/object-url?remote=" + image);
-        System.out.println(resp);
+        if (resp == null) {
+            throw new RuntimeException("Image URL couldn't be retrieved");
+        }
         return resp;
     }
 
     public static String analyzeImage(String url) throws IOException {
         String resp = getRequest(rekognitionService + "/analyze?image=" + Base64.getUrlEncoder().encodeToString(url.getBytes()));
-        System.out.println(resp);
+        if (resp == null) {
+            throw new RuntimeException("Image couldn't be analyzed, the response json wasn't retrieved");
+        }
         return resp;
     }
 
@@ -63,11 +62,12 @@ public class Main {
         Map<String, String> args = new HashMap<>();
         args.put("data", Base64.getUrlEncoder().encodeToString(json.getBytes()));
         args.put("remote", result);
-        postRequest(bucketService + "/object", args);
+        if (!postRequest(bucketService + "/object", args)) {
+            throw new RuntimeException("Couldn't upload the result");
+        }
     }
 
-    public static void postRequest(String url, Map<String, String> args) throws IOException {
-        System.out.println(url);
+    public static boolean postRequest(String url, Map<String, String> args) throws IOException {
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
         con.setRequestMethod("POST");
@@ -84,24 +84,15 @@ public class Main {
         os.close();
         int responseCode = con.getResponseCode();
 
-        if (responseCode == HttpURLConnection.HTTP_OK) {
-            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-            String inputLine;
-            StringBuilder response = new StringBuilder();
-
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-            in.close();
-
-            System.out.println(response.toString());
-        } else {
-            System.out.println("POST request did not work, with response code : " + responseCode);
+        if (responseCode != HttpURLConnection.HTTP_OK) {
+            System.out.println("POST request did not work, with error: " + responseCode + " : " + con.getResponseMessage());
+            return false;
         }
+
+        return true;
     }
 
     public static String getRequest(String url) throws IOException {
-        System.out.println(url);
         String resp;
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
@@ -120,35 +111,22 @@ public class Main {
 
             resp = response.toString();
         } else {
-            resp = "GET request did not work, with response code : " + responseCode;
+            System.out.println("GET request did not work, with error: " + responseCode + " : " + con.getResponseMessage());
+            return null;
         }
 
         return resp;
     }
 
-    public static String delRequest(String url) throws IOException {
-        System.out.println(url);
-        String resp;
+    public static void delRequest(String url) throws IOException {
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
         con.setRequestMethod("DELETE");
         int responseCode = con.getResponseCode();
 
-        if (responseCode == HttpURLConnection.HTTP_OK) {
-            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-            String inputLine;
-            StringBuilder response = new StringBuilder();
-
-            while ((inputLine = in.readLine()) != null) {
-                response.append(inputLine);
-            }
-            in.close();
-
-            resp = response.toString();
-        } else {
-            resp = "GET request did not work, with response code : " + responseCode;
+        if (responseCode != HttpURLConnection.HTTP_OK) {
+           System.out.println("DEL request did not work, with error: " + responseCode + " : " + con.getResponseMessage());
         }
 
-        return resp;
     }
 }
