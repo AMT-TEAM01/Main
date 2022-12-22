@@ -20,7 +20,9 @@ After you have done step 1,2,3 of the link. You can pull the images with the fol
 - <code>docker pull ghcr.io/amt-team01/data-object-aws:latest</code> for the data object, that will download the image for the communication with s3 on our machine.
 - <code>docker pull ghcr.io/amt-team01/label-detector-aws:latest</code> for the label detector service using Amazon Rekognition. 
 
-We can then launch our docker with the following commands:
+After that, make sure that the ports 8080 and 8081 are not used on your machine. Those are the ports we use by default in the main sequence. It is still possible to change the default ports, but you will also need to change the values of`bucketService` and `rekognitionSService` in the Main.java file accordingly.
+
+We can then launch our containers with the following commands:
 - Data Object : <code>docker run --name=doaws -p 8080:8080 -e AWS_ACCESS_KEY_ID=XXXXXXXXXXXX -e AWS_SECRET_ACCESS_KEY=XXXXXXXXXXXX -e AWS_DEFAULT_REGION=XXXXXXXXX ghcr.io/amt-team01/data-object-aws</code> 
 - Label detector : <code>docker run --name=ldaws -p 8081:8080 -e AWS_ACCESS_KEY_ID=XXXXXXXXXXXX -e AWS_SECRET_ACCESS_KEY=XXXXXXXXXXXX -e AWS_DEFAULT_REGION=XXXXXXXXXXXX ghcr.io/amt-team01/label-detector-aws</code>
 
