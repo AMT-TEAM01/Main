@@ -8,6 +8,10 @@ The 2 micro-services use CI/CD for symplifing the developpmeent process. On push
 
 # Run the micros-services
 
+Micro-services links : 
+- https://github.com/AMT-TEAM01/LabelDetectorAWS/tree/dev
+- https://github.com/AMT-TEAM01/DataObjectAWS/tree/dev
+
 The dockers images are hosted at the following addresses :
 - https://github.com/AMT-TEAM01/DataObjectAWS/pkgs/container/data-object-aws
 - https://github.com/AMT-TEAM01/LabelDetectorAWS/pkgs/container/label-detector-aws
